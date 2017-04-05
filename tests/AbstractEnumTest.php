@@ -1,0 +1,113 @@
+<?php
+
+namespace Paillechat\Enum\Tests;
+
+use Paillechat\Enum\Enum;
+use PHPUnit\Framework\TestCase;
+
+class AbstractEnumTest extends TestCase
+{
+    public function testSuccess()
+    {
+        $enum = new DummyEnum(DummyEnum::ONE);
+
+        $this->assertInstanceOf(Enum::class, $enum);
+    }
+
+    /**
+     * @expectedException \Paillechat\Enum\Exception\EnumException
+     * @expectedExceptionMessage Value bar not exist in enum Paillechat\Enum\Tests\DummyEnum
+     */
+    public function testUnrecognisedValue()
+    {
+        new DummyEnum('bar');
+    }
+
+    public function testDefaultValue()
+    {
+        $enum = new DummyWithDefaultEnum();
+
+        $this->assertEquals('bar', $enum);
+    }
+
+    /**
+     * @expectedException \Paillechat\Enum\Exception\EnumException
+     * @expectedExceptionMessage No default value in Paillechat\Enum\Tests\DummyEnum enum
+     */
+    public function testWhenNoDefault()
+    {
+        new DummyEnum();
+    }
+
+    public function testToInt()
+    {
+        $enum = new DummyEnum(DummyEnum::ONE);
+        $this->assertEquals(1, $enum->toInt());
+    }
+
+    /**
+     * @expectedException  \Paillechat\Enum\Exception\EnumException
+     * @expectedExceptionMessage Value no mismatch integer type
+     */
+    public function testCantBeInt()
+    {
+        $enum = new DummyWithDefaultEnum();
+        $enum->toInt();
+    }
+
+    /**
+     * @dataProvider dataForGetListTest
+     *
+     * @param bool $includeDefault
+     * @param array $expected
+     */
+    public function testGetConstList($includeDefault, $expected)
+    {
+        $enum = new DummyWithDefaultEnum();
+
+        $this->assertEquals($expected, $enum->getConstList($includeDefault));
+    }
+
+    public function dataForGetListTest()
+    {
+        return [
+            [
+                true,
+                [
+                    '__default' => 'bar',
+                    'FOO' => 'foo',
+                    'ONE' => 1,
+                ]
+            ],
+            [
+                false,
+                [
+                    'FOO' => 'foo',
+                    'ONE' => 1,
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider dataForTestEquals
+     *
+     * @param Enum $first
+     * @param Enum $second
+     * @param bool $expected
+     */
+    public function testEquals($first, $second, $expected)
+    {
+        $result = $first->equals($second);
+        $this->assertEquals($expected, $result);
+    }
+
+    public function dataForTestEquals()
+    {
+        return [
+            [new DummyEnum(1), new DummyEnum(1), true],
+            [new DummyEnum(1), new DummyEnum(2), false],
+            [new DummyEnum(1), new DummyWithDefaultEnum(1), false],
+        ];
+    }
+}
