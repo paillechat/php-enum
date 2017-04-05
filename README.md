@@ -1,4 +1,10 @@
 # Enum
+
+
+[![Build Status](https://travis-ci.org/paillechat/php-enum.svg?branch=master)](https://travis-ci.org/myclabs/php-enum)
+[![Latest Stable Version](https://poser.pugx.org/paillechat/php-enum/version.png)](https://packagist.org/packages/paillechat/php-enum)
+[![Total Downloads](https://poser.pugx.org/paillechat/php-enum/downloads.png)](https://packagist.org/packages/paillechat/php-enum)
+
 A PHP 7+ enumeration library.
 
 ## Why?
