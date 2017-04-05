@@ -1,7 +1,8 @@
 {
     "name": "paillechat/php-enum",
     "description": "Enum implementation for PHP 7",
-    "type": "lib",
+    "type": "library",
+    "keywords": ["enum"],
     "authors": [
         {
             "name": "Ilya Burtsev",
