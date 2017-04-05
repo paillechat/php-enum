@@ -1,0 +1,27 @@
+{
+    "name": "paillechat/php-enum",
+    "description": "Enum implementation for PHP 7",
+    "type": "lib",
+    "authors": [
+        {
+            "name": "Ilya Burtsev",
+            "email": "paillechat@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.0.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Paillechat\\Enum\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Paillechat\\Enum\\Tests\\": "tests"
+        }
+    }
+}
