@@ -14,7 +14,7 @@ SplEnum not supported in php 7.
 
 ## Installation
 ```
-composer require paiilechat/php-enum
+composer require paillechat/php-enum
 ```
 
 ## Declare
