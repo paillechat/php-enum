@@ -88,7 +88,7 @@ abstract class Enum
     {
         $const = $this->getConstList(true);
 
-        if (!isset($const[$this->defaultConstantName])) {
+        if (!array_key_exists($this->defaultConstantName, $const)) {
             throw EnumException::becauseNoDefaultValue(get_called_class());
         }
 
