@@ -1,7 +1,7 @@
 # Enum
 
 
-[![Build Status](https://travis-ci.org/paillechat/php-enum.svg?branch=master)](https://travis-ci.org/myclabs/php-enum)
+[![Build Status](https://travis-ci.org/paillechat/php-enum.svg?branch=master)](https://travis-ci.org/paillechat/php-enum)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/paillechat/php-enum/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/paillechat/php-enum/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/paillechat/php-enum/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/paillechat/php-enum/?branch=master)
 [![Latest Stable Version](https://poser.pugx.org/paillechat/php-enum/version.png)](https://packagist.org/packages/paillechat/php-enum)
