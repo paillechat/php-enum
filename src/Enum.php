@@ -6,14 +6,14 @@ use Paillechat\Enum\Exception\EnumException;
 
 abstract class Enum
 {
-    /** @var string */
-    private $defaultConstantName = '__default';
-
-    /**  @var \ReflectionClass */
-    private $reflection;
-
     /** @var mixed */
     protected $value = null;
+
+    /** @var string */
+    private static $defaultConstantName = '__default';
+
+    /** @var \ReflectionClass[] */
+    private static $reflections;
 
     /**
      * @param mixed $value
@@ -21,34 +21,12 @@ abstract class Enum
     public function __construct($value = null)
     {
         if ($value === null) {
-            $value = $this->getDefaultValue();
+            $value = static::getDefaultValue();
         }
 
         $this->assertValue($value);
 
         $this->value = $value;
-    }
-
-    /**
-     * @param bool $includeDefault
-     *
-     * @return array
-     */
-    final public function getConstList(bool $includeDefault = false): array
-    {
-        $this->reflection = $this->reflection ?? new \ReflectionClass($this);
-
-        return array_filter(
-            $this->reflection->getConstants(),
-            function ($key) use ($includeDefault) {
-                if ($includeDefault === false && $key === $this->defaultConstantName) {
-                    return false;
-                }
-
-                return true;
-            },
-            ARRAY_FILTER_USE_KEY
-        );
     }
 
     /**
@@ -68,7 +46,7 @@ abstract class Enum
      */
     final public function equals(Enum $enum)
     {
-        return $this->getValue() === $enum->getValue() && get_called_class() == get_class($enum);
+        return $this->getValue() === $enum->getValue() && static::class == get_class($enum);
     }
 
     /**
@@ -80,19 +58,43 @@ abstract class Enum
     }
 
     /**
+     * @param bool $includeDefault
+     *
+     * @return array
+     */
+    final public static function getConstList(bool $includeDefault = false): array
+    {
+        self::$reflections[static::class] =
+            self::$reflections[static::class] ??
+            new \ReflectionClass(static::class);
+
+        return array_filter(
+            self::$reflections[static::class]->getConstants(),
+            function ($key) use ($includeDefault) {
+                if ($includeDefault === false && $key === self::$defaultConstantName) {
+                    return false;
+                }
+
+                return true;
+            },
+            ARRAY_FILTER_USE_KEY
+        );
+    }
+
+    /**
      * @return mixed
      *
      * @throws EnumException
      */
-    protected function getDefaultValue()
+    protected static function getDefaultValue()
     {
-        $const = $this->getConstList(true);
+        $const = static::getConstList(true);
 
-        if (!array_key_exists($this->defaultConstantName, $const)) {
-            throw EnumException::becauseNoDefaultValue(get_called_class());
+        if (!array_key_exists(self::$defaultConstantName, $const)) {
+            throw EnumException::becauseNoDefaultValue(static::class);
         }
 
-        return $const[$this->defaultConstantName];
+        return $const[self::$defaultConstantName];
     }
 
     /**
@@ -102,12 +104,12 @@ abstract class Enum
      */
     private function assertValue($value)
     {
-        $const = $this->getConstList(true);
+        $const = static::getConstList(true);
 
-        $defaultValueUsed = $value === null && isset($const[$this->defaultConstantName]);
+        $defaultValueUsed = $value === null && isset($const[self::$defaultConstantName]);
 
         if (!$defaultValueUsed && !in_array($value, $const, true)) {
-            throw EnumException::becauseUnrecognisedValue(get_called_class(), $value);
+            throw EnumException::becauseUnrecognisedValue(static::class, $value);
         }
     }
 }
