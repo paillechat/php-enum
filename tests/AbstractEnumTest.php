@@ -63,9 +63,7 @@ class AbstractEnumTest extends TestCase
      */
     public function testGetConstList($includeDefault, $expected)
     {
-        $enum = new DummyWithDefaultEnum();
-
-        $this->assertEquals($expected, $enum->getConstList($includeDefault));
+        $this->assertEquals($expected, DummyWithDefaultEnum::getConstList($includeDefault));
     }
 
     public function dataForGetListTest()
@@ -109,5 +107,14 @@ class AbstractEnumTest extends TestCase
             [new DummyEnum(1), new DummyEnum(2), false],
             [new DummyEnum(1), new DummyWithDefaultEnum(1), false],
         ];
+    }
+
+    public function testExistenceOfTwoEnumClasses()
+    {
+        $constantsDummy = DummyEnum::getConstList();
+        $constantsSecondDummy = SecondDummyEnum::getConstList();
+
+        $this->assertEquals(['ONE' => 1, 'TWO' => 2], $constantsDummy);
+        $this->assertEquals(['TREE' => 3, 'FOUR' => 4], $constantsSecondDummy);
     }
 }
