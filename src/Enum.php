@@ -10,7 +10,7 @@ abstract class Enum
     protected $value = null;
 
     /** @var string */
-    private static $defaultConstantName = '__default';
+    protected static $defaultConstantName = '__default';
 
     /** @var \ReflectionClass[] */
     private static $reflections;
