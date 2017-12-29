@@ -9,6 +9,6 @@ class SecondDummyEnum extends Enum
 {
     use EnumValueToIntegerTrait;
 
-    const TREE = 3;
+    const THREE = 3;
     const FOUR = 4;
 }
