@@ -6,19 +6,19 @@ use Paillechat\Enum\Exception\EnumException;
 
 abstract class Enum
 {
-    /** @var mixed */
-    protected $value = null;
-
     /** @var string */
     private static $defaultConstantName = '__default';
-
     /** @var \ReflectionClass[] */
     private static $reflections;
+    /** @var mixed */
+    protected $value;
 
     /**
      * @param mixed $value
+     *
+     * @throws EnumException
      */
-    public function __construct($value = null)
+    final public function __construct($value = null)
     {
         if ($value === null) {
             $value = static::getDefaultValue();
@@ -27,34 +27,6 @@ abstract class Enum
         $this->assertValue($value);
 
         $this->value = $value;
-    }
-
-    /**
-     * @return mixed
-     */
-    final public function getValue()
-    {
-        return $this->value;
-    }
-
-    /**
-     * Compares one Enum with another.
-     *
-     * @param Enum $enum
-     *
-     * @return bool True if Enums are equal, false if not equal
-     */
-    final public function equals(Enum $enum)
-    {
-        return $this->getValue() === $enum->getValue() && static::class == get_class($enum);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function __toString(): string
-    {
-        return (string) $this->getValue();
     }
 
     /**
@@ -82,6 +54,27 @@ abstract class Enum
     }
 
     /**
+     * Creates enum instance with short static constructor
+     *
+     * @param string $name
+     * @param array $arguments
+     *
+     * @return static
+     *
+     * @throws \BadMethodCallException
+     */
+    final public static function __callStatic(string $name, array $arguments)
+    {
+        $const = static::getConstList();
+
+        if (!array_key_exists($name, $const)) {
+            throw new \BadMethodCallException(sprintf('Unknown static constructor "%s" for %s', $name, static::class));
+        }
+
+        return new static($const[$name]);
+    }
+
+    /**
      * @return mixed
      *
      * @throws EnumException
@@ -95,6 +88,34 @@ abstract class Enum
         }
 
         return $const[self::$defaultConstantName];
+    }
+
+    /**
+     * @return mixed
+     */
+    final public function getValue()
+    {
+        return $this->value;
+    }
+
+    /**
+     * Compares one Enum with another.
+     *
+     * @param Enum $enum
+     *
+     * @return bool True if Enums are equal, false if not equal
+     */
+    final public function equals(Enum $enum)
+    {
+        return $this->getValue() === $enum->getValue() && static::class === get_class($enum);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __toString(): string
+    {
+        return (string) $this->getValue();
     }
 
     /**

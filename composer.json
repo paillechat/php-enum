@@ -1,6 +1,7 @@
 {
     "name": "paillechat/php-enum",
     "description": "Enum implementation for PHP 7",
+    "license": "MIT",
     "type": "library",
     "keywords": ["enum"],
     "authors": [
@@ -13,7 +14,7 @@
         "php": ">=7.0.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^4.0",
+        "phpunit/phpunit": "^6.4",
         "squizlabs/php_codesniffer": "^2.8"
     },
     "autoload": {

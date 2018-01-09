@@ -55,6 +55,20 @@ class AbstractEnumTest extends TestCase
         $enum->toInt();
     }
 
+    public function testMagicStaticConstructorCreateEnum()
+    {
+        $this->assertEquals(new DummyEnum(DummyEnum::ONE), DummyEnum::ONE());
+    }
+
+    /**
+     * @expectedException \BadMethodCallException
+     * @expectedExceptionMessage Unknown static constructor "THREE" for Paillechat\Enum\Tests\DummyEnum
+     */
+    public function testMagicStaticConstructorThrowsBadMethodCallException()
+    {
+        DummyEnum::THREE();
+    }
+
     /**
      * @dataProvider dataForGetListTest
      *
@@ -115,6 +129,6 @@ class AbstractEnumTest extends TestCase
         $constantsSecondDummy = SecondDummyEnum::getConstList();
 
         $this->assertEquals(['ONE' => 1, 'TWO' => 2], $constantsDummy);
-        $this->assertEquals(['TREE' => 3, 'FOUR' => 4], $constantsSecondDummy);
+        $this->assertEquals(['THREE' => 3, 'FOUR' => 4], $constantsSecondDummy);
     }
 }
