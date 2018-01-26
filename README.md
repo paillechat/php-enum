@@ -42,3 +42,51 @@ function proccessIssue(IssueType $type)
 }
 
 ```
+
+## Static constructor usage
+
+Public constant visibility is not necessary for this type of enum usage, protected is enough to work
+
+### Declare 
+```php
+<?php
+
+use Paillechat\Enum\Enum;
+
+/**
+ * @method static static ONE
+ * @method static static TWO
+ */
+class IssueType extends Enum 
+{
+    protected const ONE = 1;
+    protected const TWO = 2;
+} 
+
+# Now you can create enum via named static call
+$one = IssueType::ONE();
+```
+
+### Singleton-based enum
+```php
+<?php
+
+use Paillechat\Enum\StaticEnum;
+
+/**
+ * @method static static ONE
+ * @method static static TWO
+ */
+class IssueType extends StaticEnum 
+{
+    protected const ONE = 1;
+    protected const TWO = 2;
+} 
+
+# Now you can create enum via named static call
+$one1 = IssueType::ONE();
+$one2 = IssueType::ONE();
+
+# Now enums keep strict equality
+$one1 === $one2;
+```
