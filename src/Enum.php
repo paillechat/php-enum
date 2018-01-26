@@ -6,51 +6,21 @@ use Paillechat\Enum\Exception\EnumException;
 
 abstract class Enum
 {
-    /** @var string */
-    private static $defaultConstantName = '__default';
+    /** @var Enum[] */
+    private static $instances = [];
+    /** @var \ReflectionClassConstant[] */
+    private static $constReflections = [];
     /** @var \ReflectionClass[] */
-    private static $reflections;
-    /** @var mixed */
-    protected $value;
+    private static $reflections = [];
+    /** @var string */
+    private $name;
 
     /**
-     * @param mixed $value
-     *
-     * @throws EnumException
+     * @param string $name
      */
-    final public function __construct($value = null)
+    final private function __construct(string $name)
     {
-        if ($value === null) {
-            $value = static::getDefaultValue();
-        }
-
-        $this->assertValue($value);
-
-        $this->value = $value;
-    }
-
-    /**
-     * @param bool $includeDefault
-     *
-     * @return array
-     */
-    final public static function getConstList(bool $includeDefault = false): array
-    {
-        self::$reflections[static::class] =
-            self::$reflections[static::class] ??
-            new \ReflectionClass(static::class);
-
-        return array_filter(
-            self::$reflections[static::class]->getConstants(),
-            function ($key) use ($includeDefault) {
-                if ($includeDefault === false && $key === self::$defaultConstantName) {
-                    return false;
-                }
-
-                return true;
-            },
-            ARRAY_FILTER_USE_KEY
-        );
+        $this->name = $name;
     }
 
     /**
@@ -61,76 +31,85 @@ abstract class Enum
      *
      * @return static
      *
-     * @throws \BadMethodCallException
+     * @throws EnumException
      */
     final public static function __callStatic(string $name, array $arguments)
     {
         $const = static::getConstList();
 
-        if (!array_key_exists($name, $const)) {
-            throw new \BadMethodCallException(sprintf('Unknown static constructor "%s" for %s', $name, static::class));
+        if (!\in_array($name, $const, true)) {
+            throw EnumException::becauseUnknownMember(static::class, $name);
         }
 
-        return new static($const[$name]);
+        return static::createNamedInstance($name);
     }
 
-    /**
-     * @return mixed
-     *
-     * @throws EnumException
-     */
-    protected static function getDefaultValue()
+    public static function getConstList(): array
     {
-        $const = static::getConstList(true);
+        return array_keys(self::getEnumReflection(static::class)->getConstants());
+    }
 
-        if (!array_key_exists(self::$defaultConstantName, $const)) {
-            throw EnumException::becauseNoDefaultValue(static::class);
+    private static function getConstantReflection(string $class, string $name): \ReflectionClassConstant
+    {
+        $key = self::getConstKey($class, $name);
+        if (!array_key_exists($key, self::$constReflections)) {
+            $refl = self::getEnumReflection(static::class);
+
+            self::$constReflections[$key] = $refl->getReflectionConstant($name);
         }
 
-        return $const[self::$defaultConstantName];
+        return self::$constReflections[$key];
+    }
+
+    private static function getConstKey(string $class, string $name): string
+    {
+        return $class . '::' . $name;
+    }
+
+    private static function findParentClassForConst(string $name): string
+    {
+        return self::getConstantReflection(static::class, $name)->getDeclaringClass()->getName();
+    }
+
+    private static function getEnumReflection(string $class): \ReflectionClass
+    {
+        if (!array_key_exists($class, self::$reflections)) {
+            self::$reflections[$class] = new \ReflectionClass($class);
+        }
+
+        return self::$reflections[$class];
     }
 
     /**
-     * @return mixed
+     * Create named enum instance
+     *
+     * @param string $name
+     *
+     * @return static
      */
-    final public function getValue()
+    private static function createNamedInstance(string $name)
     {
-        return $this->value;
+        $class = self::findParentClassForConst($name);
+
+        $key = self::getConstKey($class, $name);
+
+        if (!array_key_exists($key, self::$instances)) {
+            self::$instances[$key] = new static($name);
+        }
+
+        return self::$instances[$key];
     }
 
-    /**
-     * Compares one Enum with another.
-     *
-     * @param Enum $enum
-     *
-     * @return bool True if Enums are equal, false if not equal
-     */
-    final public function equals(Enum $enum)
+    final public function getName(): string
     {
-        return $this->getValue() === $enum->getValue() && static::class === get_class($enum);
+        return $this->name;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function __toString(): string
+    final public function __toString(): string
     {
-        return (string) $this->getValue();
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @throws EnumException
-     */
-    private function assertValue($value)
-    {
-        $const = static::getConstList(true);
-
-        $defaultValueUsed = $value === null && isset($const[self::$defaultConstantName]);
-
-        if (!$defaultValueUsed && !in_array($value, $const, true)) {
-            throw EnumException::becauseUnrecognisedValue(static::class, $value);
-        }
+        return $this->getName();
     }
 }
