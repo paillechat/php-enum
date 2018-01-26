@@ -123,6 +123,18 @@ class AbstractEnumTest extends TestCase
         ];
     }
 
+    public function testExtendingEnumKeepsBackwardEquality()
+    {
+        self::assertTrue(DummyEnum::ONE()->equals(DummyExtendingEnum::ONE()));
+        self::assertTrue(DummyExtendingEnum::ONE()->equals(DummyEnum::ONE()));
+    }
+
+    public function testDivergedEnumsAreNotEqual()
+    {
+        self::assertFalse(DummyDivergedEnum::ONE()->equals(DummyExtendingEnum::ONE()));
+        self::assertFalse(DummyExtendingEnum::ONE()->equals(DummyDivergedEnum::ONE()));
+    }
+
     public function testExistenceOfTwoEnumClasses()
     {
         $constantsDummy = DummyEnum::getConstList();

@@ -9,7 +9,7 @@ abstract class Enum
     /** @var string */
     private static $defaultConstantName = '__default';
     /** @var \ReflectionClass[] */
-    private static $reflections;
+    private static $reflections = [];
     /** @var mixed */
     protected $value;
 
@@ -36,12 +36,8 @@ abstract class Enum
      */
     final public static function getConstList(bool $includeDefault = false): array
     {
-        self::$reflections[static::class] =
-            self::$reflections[static::class] ??
-            new \ReflectionClass(static::class);
-
         return array_filter(
-            self::$reflections[static::class]->getConstants(),
+            self::getEnumReflection(static::class)->getConstants(),
             function ($key) use ($includeDefault) {
                 if ($includeDefault === false && $key === self::$defaultConstantName) {
                     return false;
@@ -71,7 +67,31 @@ abstract class Enum
             throw new \BadMethodCallException(sprintf('Unknown static constructor "%s" for %s', $name, static::class));
         }
 
-        return new static($const[$name]);
+        return static::createNamedInstance($name, $const[$name]);
+    }
+
+    protected static function getEnumReflection(string $class): \ReflectionClass
+    {
+        if (!array_key_exists($class, self::$reflections)) {
+            self::$reflections[$class] = new \ReflectionClass($class);
+        }
+
+        return self::$reflections[$class];
+    }
+
+    /**
+     * Create named enum instance
+     *
+     * @param string $name
+     * @param mixed $value
+     *
+     * @return static
+     *
+     * @throws EnumException
+     */
+    protected static function createNamedInstance(string $name, $value)
+    {
+        return new static($value);
     }
 
     /**
@@ -107,7 +127,12 @@ abstract class Enum
      */
     final public function equals(Enum $enum)
     {
-        return $this->getValue() === $enum->getValue() && static::class === get_class($enum);
+        $enumClass = get_class($enum);
+
+        $thisClass = static::class;
+
+        return $this->getValue() === $enum->getValue()
+            && ($this instanceof $enumClass || $enum instanceof $thisClass);
     }
 
     /**
