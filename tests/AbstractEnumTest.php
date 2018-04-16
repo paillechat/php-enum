@@ -2,133 +2,76 @@
 
 namespace Paillechat\Enum\Tests;
 
-use Paillechat\Enum\Enum;
 use PHPUnit\Framework\TestCase;
 
 class AbstractEnumTest extends TestCase
 {
-    public function testSuccess()
+    public function testSuccess(): void
     {
-        $enum = new DummyEnum(DummyEnum::ONE);
+        $enum = DummyEnum::ONE();
 
-        $this->assertInstanceOf(Enum::class, $enum);
+        $this->assertInstanceOf(DummyEnum::class, $enum);
+
+        self::assertSame('ONE', (string) $enum);
+        self::assertSame('ONE', $enum->getName());
+    }
+
+    public function testEnumConstList(): void
+    {
+        $actual = DummyExtendingEnum::getConstList();
+        asort($actual);
+
+        $expected = [
+            'ONE',
+            'TWO',
+            'THREE',
+            'FOUR',
+        ];
+        sort($expected);
+        sort($actual);
+        self::assertSame($expected, $actual);
     }
 
     /**
      * @expectedException \Paillechat\Enum\Exception\EnumException
-     * @expectedExceptionMessage Value bar not exist in enum Paillechat\Enum\Tests\DummyEnum
+     * @expectedExceptionMessage Unknown member "THREE" for enum Paillechat\Enum\Tests\DummyEnum
      */
-    public function testUnrecognisedValue()
+    public function testMagicStaticConstructorThrowsBadMethodCallException(): void
     {
-        new DummyEnum('bar');
-    }
-
-    public function testDefaultValue()
-    {
-        $enum = new DummyWithDefaultEnum();
-
-        $this->assertEquals('bar', $enum);
-    }
-
-    /**
-     * @expectedException \Paillechat\Enum\Exception\EnumException
-     * @expectedExceptionMessage No default value in Paillechat\Enum\Tests\DummyEnum enum
-     */
-    public function testWhenNoDefault()
-    {
-        new DummyEnum();
-    }
-
-    public function testToInt()
-    {
-        $enum = new DummyEnum(DummyEnum::ONE);
-        $this->assertEquals(1, $enum->toInt());
-    }
-
-    /**
-     * @expectedException  \Paillechat\Enum\Exception\EnumException
-     * @expectedExceptionMessage Value no mismatch integer type
-     */
-    public function testCantBeInt()
-    {
-        $enum = new DummyWithDefaultEnum();
-        $enum->toInt();
-    }
-
-    public function testMagicStaticConstructorCreateEnum()
-    {
-        $this->assertEquals(new DummyEnum(DummyEnum::ONE), DummyEnum::ONE());
-    }
-
-    /**
-     * @expectedException \BadMethodCallException
-     * @expectedExceptionMessage Unknown static constructor "THREE" for Paillechat\Enum\Tests\DummyEnum
-     */
-    public function testMagicStaticConstructorThrowsBadMethodCallException()
-    {
+        /** @noinspection PhpUndefinedMethodInspection */
         DummyEnum::THREE();
     }
 
-    /**
-     * @dataProvider dataForGetListTest
-     *
-     * @param bool $includeDefault
-     * @param array $expected
-     */
-    public function testGetConstList($includeDefault, $expected)
+    public function testStaticConstructorEnsuresStrictEquality(): void
     {
-        $this->assertEquals($expected, DummyWithDefaultEnum::getConstList($includeDefault));
+        $first = DummyEnum::ONE();
+        $second = DummyEnum::ONE();
+
+        self::assertSame($first, $second);
     }
 
-    public function dataForGetListTest()
+    public function testInheritanceKeepsStrictEquality(): void
     {
-        return [
-            [
-                true,
-                [
-                    '__default' => 'bar',
-                    'FOO' => 'foo',
-                    'ONE' => 1,
-                ]
-            ],
-            [
-                false,
-                [
-                    'FOO' => 'foo',
-                    'ONE' => 1,
-                ]
-            ]
-        ];
+        $first = DummyEnum::ONE();
+        $second = DummyExtendingEnum::ONE();
+
+        self::assertSame($first, $second);
     }
 
-    /**
-     * @dataProvider dataForTestEquals
-     *
-     * @param Enum $first
-     * @param Enum $second
-     * @param bool $expected
-     */
-    public function testEquals($first, $second, $expected)
+    public function testStaticConstructorAllowsInternalFunctions(): void
     {
-        $result = $first->equals($second);
-        $this->assertEquals($expected, $result);
+        $haystack = [DummyEnum::ONE(), DummyExtendingEnum::TWO()];
+        $needle = DummyExtendingEnum::TWO();
+
+        self::assertContains($needle, $haystack);
     }
 
-    public function dataForTestEquals()
+    public function testDivergenceBreaksEquality(): void
     {
-        return [
-            [new DummyEnum(1), new DummyEnum(1), true],
-            [new DummyEnum(1), new DummyEnum(2), false],
-            [new DummyEnum(1), new DummyWithDefaultEnum(1), false],
-        ];
-    }
+        $first = DummyDivergedEnum::THREE();
+        $second = DummyExtendingEnum::THREE();
 
-    public function testExistenceOfTwoEnumClasses()
-    {
-        $constantsDummy = DummyEnum::getConstList();
-        $constantsSecondDummy = SecondDummyEnum::getConstList();
-
-        $this->assertEquals(['ONE' => 1, 'TWO' => 2], $constantsDummy);
-        $this->assertEquals(['THREE' => 3, 'FOUR' => 4], $constantsSecondDummy);
+        self::assertNotSame($first, $second);
+        self::assertNotEquals($first, $second);
     }
 }

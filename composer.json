@@ -8,10 +8,14 @@
         {
             "name": "Ilya Burtsev",
             "email": "paillechat@gmail.com"
+        },
+        {
+            "name": "Pavel Batanov",
+            "email": "pavel@batanov.me"
         }
     ],
     "require": {
-        "php": ">=7.0.0"
+        "php": ">=7.1"
     },
     "require-dev": {
         "phpunit/phpunit": "^6.4",
