@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<phpunit backupGlobals="false"
-    backupStaticAttributes="false"
-    colors="true"
-    convertErrorsToExceptions="true"
-    convertNoticesToExceptions="true"
-    convertWarningsToExceptions="true"
-    stopOnFailure="false"
-    bootstrap="vendor/autoload.php"
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         colors="true"
+         xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/6.5/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
 >
+    <php>
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="weak_vendors"/>
+    </php>
+
     <testsuites>
         <testsuite name="Paillechat Enum Test Suite">
             <directory>./tests/</directory>
@@ -20,4 +20,9 @@
             <directory suffix=".php">./src/</directory>
         </whitelist>
     </filter>
+
+    <listeners>
+        <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener" />
+    </listeners>
+
 </phpunit>
