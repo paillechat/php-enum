@@ -2,6 +2,7 @@
 
 namespace Paillechat\Enum\Tests;
 
+use PHPUnit\Framework\Error\Notice;
 use PHPUnit\Framework\TestCase;
 
 class AbstractEnumTest extends TestCase
@@ -73,5 +74,18 @@ class AbstractEnumTest extends TestCase
 
         self::assertNotSame($first, $second);
         self::assertNotEquals($first, $second);
+    }
+
+    public function testCreateByName(): void
+    {
+        self::assertSame(DummyEnum::ONE(), DummyEnum::createByName('ONE'));
+    }
+
+    /**
+     * @expectedException \PHPUnit\Framework\Error\Notice
+     */
+    public function testCreateByNameThrowsNoticeForNonCanonicalNames(): void
+    {
+        DummyEnum::createByName('One');
     }
 }

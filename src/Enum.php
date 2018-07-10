@@ -24,6 +24,32 @@ abstract class Enum
     }
 
     /**
+     * Creates enum instance by name
+     *
+     * @param string $name
+     *
+     * @return static
+     *
+     * @throws EnumException
+     */
+    final public static function createByName(string $name)
+    {
+        $canonicalName = strtoupper($name);
+        if ($canonicalName !== $name) {
+            $name = $canonicalName;
+            trigger_error('PSR-1 requires constant to be declared in upper case.', E_USER_NOTICE);
+        }
+
+        $const = static::getConstList();
+
+        if (!\in_array($name, $const, true)) {
+            throw EnumException::becauseUnknownMember(static::class, $name);
+        }
+
+        return static::createNamedInstance($name);
+    }
+
+    /**
      * Creates enum instance with short static constructor
      *
      * @param string $name
@@ -35,13 +61,7 @@ abstract class Enum
      */
     final public static function __callStatic(string $name, array $arguments)
     {
-        $const = static::getConstList();
-
-        if (!\in_array($name, $const, true)) {
-            throw EnumException::becauseUnknownMember(static::class, $name);
-        }
-
-        return static::createNamedInstance($name);
+        return static::createByName($name);
     }
 
     public static function getConstList(): array
@@ -74,7 +94,13 @@ abstract class Enum
     private static function getEnumReflection(string $class): \ReflectionClass
     {
         if (!array_key_exists($class, self::$reflections)) {
-            self::$reflections[$class] = new \ReflectionClass($class);
+            try {
+                self::$reflections[$class] = new \ReflectionClass($class);
+                // @codeCoverageIgnoreStart
+            } catch (\ReflectionException $e) {
+                throw new \LogicException('Class should be valid FQCN. Fix internal calls.');
+                // @codeCoverageIgnoreEnd
+            }
         }
 
         return self::$reflections[$class];
