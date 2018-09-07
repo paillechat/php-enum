@@ -176,7 +176,7 @@ abstract class Enum
      */
     public function __toString(): string
     {
-        return (string) $this->getValue();
+        return (string) $this->value;
     }
 
     /**
