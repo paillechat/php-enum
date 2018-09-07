@@ -108,7 +108,6 @@ final class AbstractEnumTest extends TestCase
      *
      * @expectedDeprecation %s. Use static constructors or createByName.
      * @expectedDeprecation %s. Define argument explicitly.
-     * @expectedDeprecation %s. Cast to string instead.
      */
     public function testDefaultValue()
     {
@@ -178,7 +177,6 @@ final class AbstractEnumTest extends TestCase
      * @group legacy
      *
      * @expectedDeprecation %s. Use weak comparison instead.
-     * @expectedDeprecation %s. Cast to string instead.
      */
     public function testEquals($first, $second, $expected)
     {
